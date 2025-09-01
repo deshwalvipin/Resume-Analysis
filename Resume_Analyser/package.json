@@ -6,7 +6,7 @@
   "description": "Run FastAPI backend and Streamlit frontend together on Windows.",
   "scripts": {
     "api": "python -m uvicorn app:app --reload --port 8000 --app-dir backend",
-    "ui": "python -m streamlit run frontend/streamlit_app.py --server.port 8501",
+    "ui": "python -m streamlit run frontend/app.py --server.port 8501",
     "dev:win": "npx concurrently -n API,UI -c blue,green \"npm:api\" \"npm:ui\""
   },
   "devDependencies": {
