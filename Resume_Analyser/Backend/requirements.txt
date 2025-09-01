@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+spacy
+sentence-transformers
+scikit-learn
+textstat
+pdfminer.six
+docx2txt
+python-multipart
+requests
