@@ -149,7 +149,8 @@ apply_theme_css()
 
 import streamlit as st
 from views.home import view as view_home
-from views.analyze import view as view_analyze
+# Frontend/app.py
+from views.analysis import view_analysis as view_analyze
 from views.history import view as view_history
 from views.settings import view as view_settings
 

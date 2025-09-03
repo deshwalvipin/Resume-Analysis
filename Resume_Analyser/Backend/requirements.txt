@@ -8,3 +8,8 @@ pdfminer.six
 docx2txt
 python-multipart
 requests
+streamlit
+pdfplumber
+PyPDF2
+docx2txt
+python-docx
