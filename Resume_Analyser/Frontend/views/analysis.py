@@ -1,3 +1,4 @@
+from services.ai import extract_skill_bag, semantic_match, generate_suggestions
 import io
 import re
 from collections import Counter
@@ -287,3 +288,66 @@ def view_analysis():
             st.write("**Top Resume terms (by frequency):**")
             res_top = Counter({k: res_freq[k] for k in res_freq}).most_common(30)
             st.write(res_top)
+    st.markdown("### 🔮 AI Matching & Suggestions")
+
+ai_cols = st.columns([1,1,1])
+with ai_cols[0]:
+    run_ai = st.button("Run AI Match", type="primary")
+
+with ai_cols[1]:
+    suggest_ai = st.button("Generate AI Suggestions")
+
+with ai_cols[2]:
+    threshold = st.slider("Semantic threshold", 0.60, 0.90, 0.78, 0.01, help="Higher = stricter matching")
+
+# Cache extraction to avoid re-billing on rerun
+@st.cache_data(show_spinner=False)
+def _extract_bags(resume_text, jd_text):
+    jd_skills = extract_skill_bag(jd_text)
+    rs_skills = extract_skill_bag(resume_text)
+    return jd_skills, rs_skills
+
+if run_ai or suggest_ai:
+    if not resume_text or not jd_text:
+        st.warning("Please provide both Resume and Job Description.")
+    else:
+        with st.spinner("Extracting skills with AI…"):
+            jd_skills, rs_skills = _extract_bags(resume_text, jd_text)
+
+        st.write("**JD skills (AI):**", ", ".join(jd_skills[:30]))
+        st.write("**Resume skills (AI):**", ", ".join(rs_skills[:30]))
+
+        with st.spinner("Computing semantic matches…"):
+            matched, missing, scores = semantic_match(jd_skills, rs_skills, threshold=threshold)
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Matched (semantic)", len(matched))
+        m2.metric("Missing (priority)", len(missing))
+        m3.metric("Match %", round(100*len(matched)/max(1,len(jd_skills))))
+
+        st.subheader("Matched Skills")
+        if matched:
+            st.write(", ".join(sorted(matched)))
+        else:
+            st.caption("No strong semantic matches at current threshold.")
+
+        st.subheader("Missing / Low-Score Skills")
+        if missing:
+            st.write(", ".join(sorted(missing)))
+            # small table with scores
+            import pandas as pd
+            st.dataframe(
+                pd.DataFrame(
+                    [{"skill": s, "similarity": round(scores.get(s, 0.0), 3)} for s in missing]
+                ).sort_values("similarity", ascending=False),
+                use_container_width=True, height=280
+            )
+        else:
+            st.caption("Great! Nothing critical appears missing.")
+
+        if suggest_ai:
+            with st.spinner("Drafting tailored suggestions…"):
+                advice = generate_suggestions(resume_text, jd_text, missing, matched)
+            st.markdown("### ✍️ AI Suggestions")
+            st.write(advice)
+

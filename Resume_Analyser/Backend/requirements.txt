@@ -13,3 +13,6 @@ pdfplumber
 PyPDF2
 docx2txt
 python-docx
+openai>=1.35.0
+numpy>=1.26
+tiktoken>=0.7.0
