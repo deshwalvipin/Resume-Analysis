@@ -4,6 +4,12 @@ import re
 from collections import Counter
 from typing import Tuple, Set, List
 
+def _init_state():
+    st.session_state.setdefault("resume_text_input", "")
+    st.session_state.setdefault("jd_text_input", "")
+    st.session_state.setdefault("ai_mode", None)     # None | "match" | "suggest"
+    st.session_state.setdefault("threshold", 0.78)
+
 import streamlit as st
 
 # ---------- File reading helpers ----------
